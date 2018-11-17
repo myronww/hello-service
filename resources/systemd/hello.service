@@ -1,0 +1,19 @@
+[Unit]
+Description=hello application service
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/hello.pid
+User=hello
+Group=hello
+RuntimeDirectory=gunicorn
+WorkingDirectory=/home/hello/hello-server
+ExecStart=/usr/bin/gunicorn --pid '/run/gunicorn/hello.pid' \
+          --bind 'unix:/run/gunicorn/hello.sock' 'hello.wsgi'
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
