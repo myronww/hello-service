@@ -5,9 +5,9 @@ VERSION_INTEGER = 1
 
 VERSION_NAMESPACE_PATH = "/%d" % VERSION_INTEGER
 
-from speak import publish_namespaces as speak_publish_namespaces
+from .speak import publish_namespaces as speak_publish_namespaces
 
-def apply_namespace(bp):
+def apply_namespaces(bp):
 
     api = Api(bp,
         title="Hello APIs",

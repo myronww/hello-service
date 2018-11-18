@@ -1,7 +1,7 @@
 
 import os
 
-from flask import Flask
+from flask import Flask, url_for
 from flask_restplus import apidoc
 
 from routing.registration import register_blueprints
@@ -19,7 +19,7 @@ app.extensions.setdefault("restplus", {
 register_blueprints(app, "hello")
 
 # Setup route redirect for the documentation
-redirect_apidoc = apidoc.Apidoc('restplus_doc', apidoc.__name__
+redirect_apidoc = apidoc.Apidoc('restplus_doc', apidoc.__name__,
     template_folder='templates',
     static_folder='static',
     static_url_path='/hello/swaggerui')
@@ -31,8 +31,13 @@ def swagger_static(filename):
 
 app.register_blueprint(redirect_apidoc)
 
+# =================================================================
+# This main entry point is utilized for debug runs only, when we
+# install our service into NGINX and use Green Unicorn, the service
+# is launch by Green Unicorn by referencing the 'app' instance in
+# this module.
 def hello_main():
-    app.run(port=8888, debug=TRUE)
+    app.run(port=8888, debug=True)
     return
 
 if __name__ == "__main__":

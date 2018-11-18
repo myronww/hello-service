@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Setup the environment
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPOSITORY_DIR="$( dirname $THIS_DIR )"
+
+INITIALIZED_FILE="$REPOSITORY_DIR/local/initialized"
+
+if [ ! -f $INITIALIZED_FILE ]; then
+    echo "The developement environement must be setup before linting can be run."
+    exit 1
+fi
+
+PYLINT_BIN="$REPOSITORY_DIR/local/venv/bin/pylint"
+REPORTS_DIR="$REPOSITORY_DIR/local/reports"
+PYLINT_REPORT="$REPORTS_DIR/$REPORT_PREFIX-pylint.txt"
+
+if [ ! -d $REPORTS_DIR ]; then
+    mkdir -p $REPORTS_DIR
+fi
+
+PACKAGE_DIR="$REPOSITORY_DIR/packages"
+PACKAGE_FILES=$( find $PACKAGE_DIR -iname "*.py")
+
+$PYLINT_BIN --rcfile="$REPOSITORY_DIR/linting/pylint-packages.conf" $PACKAGE_FILES > $PYLINT_REPORT
+
+SERVICE_DIR="$REPOSITORY_DIR/service"
+SERVICE_FILES=$( find $SERVICE_DIR -iname "*.py")
+
+$PYLINT_BIN --rcfile="$REPOSITORY_DIR/linting/pylint-service.conf" $PACKAGE_FILES >> $PYLINT_REPORT
+

@@ -2,7 +2,7 @@
 
 # Run the dependency checks on the system
 APT_DEPENDENCIES="build-essential python3 python3-dev python-setuptools python3-pip virtualenv"
-if [ $(dpkg -s $APT_DEPENDENCIES; echo $?) > 0 ]; then
+if [ $(dpkg -s $APT_DEPENDENCIES; echo $?) != 0 ]; then
     sudo apt install $APT_DEPENDENCIES
 fi
 
@@ -27,6 +27,8 @@ if [ ! -f $INITIALIZED_FILE ]; then
     virtualenv -p python3 $VIRTUAL_ENV
 
     source $VIRTUAL_ENV/bin/activate
+
+    pip install pylint
 
     # Install dependencies into the virtual environment
     pip install -r $REQUIREMENTS_FILE

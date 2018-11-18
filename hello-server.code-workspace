@@ -5,7 +5,7 @@
         }
     ],
     "settings": {
-        "python.pythonPath": "${workspaceFolder}/local/",
+        "python.pythonPath": "${workspaceFolder}/local/venv/bin/python",
         "python.envFile": "${workspaceFolder}/development.env"
     }
 }
