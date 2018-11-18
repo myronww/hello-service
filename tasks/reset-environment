@@ -1,8 +1,0 @@
-#!/bin/bash
-
-THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-REPOSITORY_DIR="$( dirname $THIS_DIR )"
-
-echo "THIS_DIR=$THIS_DIR"
-echo "REPOSITORY_DIR=$REPOSITORY_DIR"

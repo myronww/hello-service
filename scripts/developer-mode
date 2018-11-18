@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Run the dependency checks on the system
+APT_DEPENDENCIES="build-essential python3 python3-dev python-setuptools python3-pip virtualenv"
+if [ $(dpkg -s $APT_DEPENDENCIES; echo $?) > 0 ]; then
+    sudo apt install $APT_DEPENDENCIES
+fi
+
+# Setup the environment
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPOSITORY_DIR="$( dirname $THIS_DIR )"
+
+INITIALIZED_FILE="$REPOSITORY_DIR/local/initialized"
+REQUIREMENTS_FILE="$REPOSITORY_DIR/requirements.txt"
+VIRTUAL_ENV="$REPOSITORY_DIR/local/venv"
+
+echo "THIS_DIR=$THIS_DIR"
+echo "REPOSITORY_DIR=$REPOSITORY_DIR"
+
+if [ "$1" == "reset" ]; then
+    rm -fr $VIRTUAL_ENV
+    rm -f $INITIALIZED_FILE
+fi
+
+if [ ! -f $INITIALIZED_FILE ]; then
+
+    virtualenv -p python3 $VIRTUAL_ENV
+
+    source $VIRTUAL_ENV/bin/activate
+
+    # Install dependencies into the virtual environment
+    pip install -r $REQUIREMENTS_FILE
+
+    touch $INITIALIZED_FILE
+else
+    source $VIRTUAL_ENV/bin/activate
+fi

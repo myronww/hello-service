@@ -4,5 +4,8 @@
             "path": "../hello-server"
         }
     ],
-    "settings": {}
+    "settings": {
+        "python.pythonPath": "${workspaceFolder}/local/",
+        "python.envFile": "${workspaceFolder}/development.env"
+    }
 }
