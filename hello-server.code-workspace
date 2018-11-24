@@ -5,7 +5,8 @@
         }
     ],
     "settings": {
-        "python.pythonPath": "${workspaceFolder}/local/venv/bin/python",
-        "python.envFile": "${workspaceFolder}/development.env"
+        "python.pythonPath": "local/venv/bin/python",
+        "python.envFile": "./development.env",
+        "python.linting.enabled": false
     }
 }

@@ -33,6 +33,9 @@ if [ ! -f $INITIALIZED_FILE ]; then
     # Install dependencies into the virtual environment
     pip install -r $REQUIREMENTS_FILE
 
+    # Patch gunicorn message.py
+    cp -v $REPOSITORY_DIR/patches/gunicorn/message.py $VIRTUAL_ENV/lib/python3.?/site-packages/gunicorn/http/message.py
+
     touch $INITIALIZED_FILE
 else
     source $VIRTUAL_ENV/bin/activate

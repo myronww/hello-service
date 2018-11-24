@@ -4,13 +4,17 @@ Requires=gunicorn.socket
 After=network.target
 
 [Service]
+Environment=PYTHONPATH="/home/hello/hello-server/service:/home/hello/hello-server/packages"
 PIDFile=/run/gunicorn/hello.pid
 User=hello
 Group=hello
 RuntimeDirectory=gunicorn
 WorkingDirectory=/home/hello/hello-server
-ExecStart=/usr/bin/gunicorn --pid '/run/gunicorn/hello.pid' \
-          --bind 'unix:/run/gunicorn/hello.sock' 'hello.wsgi'
+ExecStart=/home/hello/hello-server/local/venv/bin/python \
+    /home/hello/hello-server/local/venv/bin/gunicorn --pid '/run/gunicorn/hello.pid' \
+    --name hello --log-level debug --error-logfile - --log-file - \
+    --chdir /home/hello/hello-server/service \
+    --bind 'unix:/run/gunicorn/hello.sock' 'app_hello.app'
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true
