@@ -1,3 +1,0 @@
-upstream rest_service_hello {
-        server unix:/run/gunicorn/hello.sock fail_timeout=0;
-}

@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Establish the base repository reference directory
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPOSITORY_DIR="$( dirname $THIS_DIR )"
+REPOSITORY_BASENAME="$( basename $REPOSITORY_DIR )"
+
+echo "THIS_DIR=$THIS_DIR"
+echo "REPOSITORY_DIR=$REPOSITORY_DIR"
+echo "REPOSITORY_BASENAME=$REPOSITORY_BASENAME"
+
+if [ $# -lt 3 ]; then
+    echo "Command Usage: deploy-service (hostname) (passkey) (service-user)"
+    exit 1
+fi
+
+if [ "$1" == "" ]; then
+    echo "Command Usage: deploy-service (hostname) (passkey) (service-user)"
+    exit 1
+fi
+
+if [ "$3" == "" ]; then
+    echo "Command Usage: deploy-service (hostname) (passkey) (service-user)"
+    exit 1
+fi
+
+TARGET_HOST="$1"
+PASSKEY="$2"
+SVCUSER="$3"
+
+SSH_DIR=$( eval echo ~/.ssh )
+if [ ! -d $SSH_DIR ]; then
+    mkdir -p $SSH_DIR
+fi
+
+REQUIREMENTS_FILE="$REPOSITORY_DIR/requirements.txt"
+VIRTUAL_ENV="$REPOSITORY_DIR/local/venv"
+DEPLOYMENT_SSH_KEYFILE="$SSH_DIR/id_deploy_rsa"
+
+if [ ! -f $DEPLOYMENT_SSH_KEYFILE ]; then
+    ssh-keygen -N "$PASSKEY" -f $DEPLOYMENT_SSH_KEYFILE
+
+    ssh-copy-id -i $DEPLOYMENT_SSH_KEYFILE root@$TARGET_HOST
+fi
+
+HAS_SERVICE_USER=$(ssh root@$TARGET_HOST "$( id -u blah &> /dev/null ); echo \"$?\"")
+if [ $HAS_SERVICE_USER = "1" ]; then
+    ssh root@$TARGET_HOST "useradd --password \"$PASSKEY\" $SVCUSER"
+fi
+
+DEPLOYMENT_DIR="/home/$SVCUSER/$REPOSITORY_BASENAME"
+
+echo "DEPLOYMENT_DIR=$DEPLOYMENT_DIR"
+
+echo
+echo "Removing old deployment folder: $DEPLOYMENT_DIR"
+echo
+ssh root@$TARGET_HOST "rm -fr $DEPLOYMENT_DIR"
+echo
+echo "Removal of old deployment folder complete..."
+echo
+
+echo
+echo "Copying source to the target host: $TARGET_HOST"
+echo
+scp -r $REPOSITORY_DIR/integration root@$TARGET_HOST:$DEPLOYMENT_DIR
+scp -r $REPOSITORY_DIR/deployment root@$TARGET_HOST:$DEPLOYMENT_DIR
+scp -r $REPOSITORY_DIR/packages root@$TARGET_HOST:$DEPLOYMENT_DIR
+scp -r $REPOSITORY_DIR/patches root@$TARGET_HOST:$DEPLOYMENT_DIR
+scp -r $REPOSITORY_DIR/service root@$TARGET_HOST:$DEPLOYMENT_DIR
+scp -r $REPOSITORY_DIR/requirements.txt root@$TARGET_HOST:$DEPLOYMENT_DIR
+echo
+echo "Repostory deployment complete..."
+echo
+
+echo
+echo "Setting up virtual environment on: $TARGET_HOST"
+echo
+ssh root@$TARGET_HOST "$DEPLOYMENT_DIR/deployment/setup-environment"
+echo
+echo "Environment setup complete..."
+echo
+
+echo
+echo "Installing the service on: $TARGET_HOST"
+echo
+ssh root@$TARGET_HOST "$DEPLOYMENT_DIR/deployment/install-service"
+echo
+echo "Service installation complete..."
+echo

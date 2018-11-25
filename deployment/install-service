@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+
+import os
+import subprocess
+
+# Establish the base repository reference directory
+THIS_DIR = os.path.dirname(__file__)
+REPOSITORY_DIR = os.path.abspath(os.path.join(THIS_DIR, ".."))
+REPOSITORY_BASENAME = os.path.basename(REPOSITORY_DIR)
+
+print("THIS_DIR=%s" % THIS_DIR)
+print("REPOSITORY_DIR=%s" % REPOSITORY_DIR)
+print("REPOSITORY_BASENAME=%s" % REPOSITORY_BASENAME)
+
+DEPLOYMENT_TEMPLATE_DIR = os.path.join(REPOSITORY_DIR, "deployment", "templates")
+
+DIR_NGINX = "/etc/nginx"
+DIR_NGINX_SITES_AVAILABLE = os.path.join(DIR_NGINX, "sites-available")
+DIR_NGINX_SITES_ENABLED = os.path.join(DIR_NGINX, "sites-enabled")
+DIR_NGINX_UPSTREAM = os.path.join(DIR_NGINX, "upstream")
+
+DIR_SYSTEMD_SYSTEM = "/etc/systemd/system"
+
+print("DEPLOYMENT_TEMPLATE_DIR=%s" % DEPLOYMENT_TEMPLATE_DIR)
+
+# ==================================================================
+#                Service Deployment Settings
+# ==================================================================
+SERVICE_PARAMS = {
+    "service-host":        "hello-rest.com",
+    "service-leaf":        "hello",
+    "service-user":        "hello",
+    "service-entry":       "app_hello:app",
+    "service-install":     "/home/hello/hello-server",
+    "service-description":  "The Hello Service"
+}
+
+print("")
+print("")
+print("SERVICE TEMPLATE FILL SETTINGS:")
+print("    service-host: %s" % SERVICE_PARAMS["service-host"])
+print("    service-leaf: %s" % SERVICE_PARAMS["service-leaf"])
+print("    service-user: %s" % SERVICE_PARAMS["service-user"])
+print("    service-entry: %s" % SERVICE_PARAMS["service-entry"])
+print("    service-install: %s" % SERVICE_PARAMS["service-install"])
+print("    service-description: %s" % SERVICE_PARAMS["service-description"])
+print("")
+print("")
+
+print("")
+print("")
+print("====================================================================")
+print("Starting NGINX deployment")
+print("--------------------------------------------------------------------")
+print("")
+
+LOCATION_FILE_BASENAME = "%s.location" % SERVICE_PARAMS["service-leaf"]
+UPSTREAM_FILE_BASENAME = "%s.upstream" % SERVICE_PARAMS["service-leaf"]
+print("")
+print("NGINX TEMPLATE FILES:")
+print("    location: %s" % LOCATION_FILE_BASENAME)
+print("    upstream: %s" % UPSTREAM_FILE_BASENAME)
+print("")
+print("")
+
+SRC_NGINX_CONF_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "nginx", "nginx.conf")
+DEST_NGINX_CONF_FILE = os.path.join(DIR_NGINX, "nginx.conf")
+
+print("")
+with open(SRC_NGINX_CONF_TEMPLATE) as srcf:
+    template_content = srcf.read()
+    filled_content = template_content % SERVICE_PARAMS
+    print("WRITING NGINX CONFIG: %s" % DEST_NGINX_CONF_FILE)
+    print(filled_content)
+    print("")
+    with open(DEST_NGINX_CONF_FILE, 'w') as destf:
+        destf.write(filled_content)
+print("")
+
+SRC_UPSTREAM_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "nginx", "upstream", UPSTREAM_FILE_BASENAME)
+DEST_UPSTREAM_FILE = os.path.join(DIR_NGINX_UPSTREAM, UPSTREAM_FILE_BASENAME)
+
+print("")
+with open(SRC_UPSTREAM_TEMPLATE) as srcf:
+    template_content = srcf.read()
+    filled_content = template_content % SERVICE_PARAMS
+    print("WRITING UPSTREAM CONFIG: %s" % DEST_UPSTREAM_FILE)
+    print(filled_content)
+    print("")
+    with open(DEST_UPSTREAM_FILE, 'w') as destf:
+        destf.write(filled_content)
+print("")
+
+SRC_LOCATION_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "nginx", "sites-available", LOCATION_FILE_BASENAME)
+DEST_LOCATION_FILE = os.path.join(DIR_NGINX_SITES_AVAILABLE, LOCATION_FILE_BASENAME)
+
+print("")
+with open(SRC_LOCATION_TEMPLATE) as srcf:
+    template_content = srcf.read()
+    filled_content = template_content % SERVICE_PARAMS
+    print("WRITING LOCATION CONFIG: %s" % DEST_LOCATION_FILE)
+    print(filled_content)
+    print("")
+    with open(DEST_LOCATION_FILE, 'w') as destf:
+        destf.write(filled_content)
+print("")
+
+print("")
+LNK_LOCATION_FILE = os.path.join(DIR_NGINX_SITES_ENABLED, LOCATION_FILE_BASENAME)
+print("ENABLING SITE: %s" % LNK_LOCATION_FILE)
+if not os.path.exists(LNK_LOCATION_FILE):
+    os.symlink(DEST_LOCATION_FILE, LNK_LOCATION_FILE)
+print("")
+
+print("")
+print("")
+print("--------------------------------------------------------------------")
+print("Finished NGINX deployment")
+print("====================================================================")
+print("")
+print("")
+
+print("")
+print("")
+print("====================================================================")
+print("Starting SystemD deployment")
+print("--------------------------------------------------------------------")
+print("")
+SERVICE_FILE_BASENAME = "%s.service" % SERVICE_PARAMS["service-leaf"]
+print("")
+print("SYSTEMD TEMPLATE FILES:")
+print("    service: %s" % SERVICE_FILE_BASENAME)
+print("")
+print("")
+
+SRC_SERVICE_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "systemd", SERVICE_FILE_BASENAME)
+DEST_SERVICE_FILE = os.path.join(DIR_SYSTEMD_SYSTEM, SERVICE_FILE_BASENAME)
+
+print("")
+with open(SRC_SERVICE_TEMPLATE) as srcf:
+    template_content = srcf.read()
+    filled_content = template_content % SERVICE_PARAMS
+    print("WRITING SYSTEMD CONFIG: %s" % DEST_SERVICE_FILE)
+    print(filled_content)
+    print("")
+    with open(DEST_SERVICE_FILE, 'w') as destf:
+        destf.write(filled_content)
+print("")
+
+print("")
+print("")
+print("--------------------------------------------------------------------")
+print("Finished SystemD deployment")
+print("====================================================================")
+print("")
+print("") 
+
+print("RELOAD SYSTEMD:")
+try:
+    CMD_SYSTEMCTL_DAEMON_RELOAD = "systemctl daemon-reload"
+    subprocess.check_call(CMD_SYSTEMCTL_DAEMON_RELOAD, shell=True)
+except subprocess.CalledProcessError:
+    print("Failed to reload systemctl daemon.")
+print("")
+print("")
+
+print("RESTART NGINX:")
+try:
+    CMD_NGINX_RESTART = "service nginx restart; service nginx status"
+    subprocess.check_call(CMD_NGINX_RESTART, shell=True)
+except subprocess.CalledProcessError:
+    print("Failed to restart nginx.")
+print("")
+print("")
+
+print("SERVICE RESTART:")
+try:
+    CMD_NGINX_RESTART = "service %s restart; service %s status" % (SERVICE_PARAMS["service-leaf"], SERVICE_PARAMS["service-leaf"])
+    subprocess.check_call(CMD_NGINX_RESTART, shell=True)
+except subprocess.CalledProcessError:
+    print("Failed to restart %s." % SERVICE_PARAMS["service-leaf"])
+print("")
+print("")
+
+print("INSTALLATION COMPLETED...")
+print("")

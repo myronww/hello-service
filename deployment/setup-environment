@@ -1,14 +1,17 @@
 #!/bin/bash
 
-# Run the dependency checks on the system
-APT_DEPENDENCIES="build-essential python3 python3-dev python-setuptools python3-pip virtualenv"
-if [ $(dpkg -s $APT_DEPENDENCIES; echo $?) != 0 ]; then
-    sudo apt install $APT_DEPENDENCIES
-fi
-
-# Setup the environment
+# Establish the base repository reference directory
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPOSITORY_DIR="$( dirname $THIS_DIR )"
+
+echo "THIS_DIR=$THIS_DIR"
+echo "REPOSITORY_DIR=$REPOSITORY_DIR"
+
+# Run the dependency checks on the system
+APT_DEPENDENCIES="build-essential python3 python3-dev python-setuptools python3-pip virtualenv"
+if [ "$(dpkg -s $APT_DEPENDENCIES; echo $?)" != 0 ]; then
+    sudo apt install $APT_DEPENDENCIES
+fi
 
 INITIALIZED_FILE="$REPOSITORY_DIR/local/initialized"
 REQUIREMENTS_FILE="$REPOSITORY_DIR/requirements.txt"
@@ -28,6 +31,7 @@ if [ ! -f $INITIALIZED_FILE ]; then
 
     source $VIRTUAL_ENV/bin/activate
 
+    # Install pylint into the virtual environment
     pip install pylint
 
     # Install dependencies into the virtual environment
@@ -37,6 +41,7 @@ if [ ! -f $INITIALIZED_FILE ]; then
     cp -v $REPOSITORY_DIR/patches/gunicorn/message.py $VIRTUAL_ENV/lib/python3.?/site-packages/gunicorn/http/message.py
 
     touch $INITIALIZED_FILE
-else
-    source $VIRTUAL_ENV/bin/activate
+
+    # Exit the virtual environment
+    deactivate
 fi

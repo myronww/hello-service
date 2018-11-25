@@ -1,0 +1,23 @@
+[Unit]
+Description="%(service-description)s"
+#Requires=gunicorn.socket
+After=network.target
+
+[Service]
+Environment=PYTHONPATH="%(service-install)s/service:%(service-install)s/packages"
+PIDFile=/run/gunicorn/%(service-leaf)s.pid
+User=%(service-user)s
+Group=%(service-user)s
+RuntimeDirectory=gunicorn
+WorkingDirectory=%(service-install)s
+ExecStart=%(service-install)s/local/venv/bin/python \
+    %(service-install)s/local/venv/bin/gunicorn --pid '/run/gunicorn/%(service-leaf)s.pid' \
+    --name %(service-leaf)s --log-level debug --error-logfile - --log-file - \
+    --chdir %(service-install)s/service \
+    --bind 'unix:/run/gunicorn/%(service-leaf)s.sock' '%(service-entry)s'
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

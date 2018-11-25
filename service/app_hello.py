@@ -18,7 +18,7 @@ if environment.DEVELOPER_MODE:
     app.debug = True
 
 # Prevent flask-restplus from registering docs so we
-# can customize the route 
+# can customize the route
 app.extensions.setdefault("restplus", {
     "apidoc_registered": True
 })
@@ -35,7 +35,7 @@ redirect_apidoc = apidoc.Apidoc('restplus_doc', apidoc.__name__,
     static_url_path='/hello/swaggerui')
 
 @redirect_apidoc.add_app_template_global
-def swagger_static(filename): 
+def swagger_static(filename):
     static_url = url_for('restplus_doc.static', filename=filename )
     logger.critical("filename: %s" % filename)
     return static_url

@@ -1,0 +1,3 @@
+upstream rest_service_%(service-leaf)s {
+        server unix:/run/gunicorn/%(service-leaf)s.sock fail_timeout=0;
+}

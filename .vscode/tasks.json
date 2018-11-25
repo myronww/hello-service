@@ -4,9 +4,24 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Check Code",
+            "type": "shell",
+            "command": "${workspaceFolder}/integration/scripts/check-code"
+        },
+        {
+            "label": "Clean Code",
+            "type": "shell",
+            "command": "${workspaceFolder}/integration/scripts/clean-code"
+        },
+        {
+            "label": "Deploy Service",
+            "type": "shell",
+            "command": "${workspaceFolder}/deployment/deploy-service hello-rest.com \"\" hello "
+        },
+        {
             "label": "Reset Environment",
             "type": "shell",
-            "command": "${workspaceFolder}/scripts/developer-mode reset"
+            "command": "${workspaceFolder}/deployment/setup-environment reset"
         }
     ]
 }
