@@ -6,22 +6,33 @@
         {
             "label": "Check Code",
             "type": "shell",
-            "command": "${workspaceFolder}/integration/scripts/check-code"
+            "command": "${workspaceFolder}/integration/scripts/check-code",
+            "problemMatcher": []
+
         },
         {
             "label": "Clean Code",
             "type": "shell",
-            "command": "${workspaceFolder}/integration/scripts/clean-code"
+            "command": "${workspaceFolder}/integration/scripts/clean-code",
+            "problemMatcher": []
         },
         {
             "label": "Deploy Service",
             "type": "shell",
-            "command": "${workspaceFolder}/deployment/deploy-service hello-rest.com \"\" hello "
+            "command": "${workspaceFolder}/deployment/deploy-service hello-rest.com \"\" hello ",
+            "problemMatcher": []
         },
         {
             "label": "Reset Environment",
             "type": "shell",
-            "command": "${workspaceFolder}/deployment/setup-environment reset"
+            "command": "${workspaceFolder}/deployment/setup-environment reset",
+            "problemMatcher": []
+        },
+        {
+            "label": "Show Environment",
+            "type": "shell",
+            "command": "${workspaceFolder}/integration/scripts/show-env",
+            "problemMatcher": []
         }
     ]
 }

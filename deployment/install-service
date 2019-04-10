@@ -35,6 +35,8 @@ SERVICE_PARAMS = {
     "service-description":  "The Hello Service"
 }
 
+SERVICE_CONFIG_BASE = "hello"
+
 print("")
 print("")
 print("SERVICE TEMPLATE FILL SETTINGS:")
@@ -54,8 +56,8 @@ print("Starting NGINX deployment")
 print("--------------------------------------------------------------------")
 print("")
 
-LOCATION_FILE_BASENAME = "%s.location" % SERVICE_PARAMS["service-leaf"]
-UPSTREAM_FILE_BASENAME = "%s.upstream" % SERVICE_PARAMS["service-leaf"]
+LOCATION_FILE_BASENAME = "%s.location" % SERVICE_CONFIG_BASE
+UPSTREAM_FILE_BASENAME = "%s.upstream" % SERVICE_CONFIG_BASE
 print("")
 print("NGINX TEMPLATE FILES:")
 print("    location: %s" % LOCATION_FILE_BASENAME)
@@ -126,11 +128,27 @@ print("====================================================================")
 print("Starting SystemD deployment")
 print("--------------------------------------------------------------------")
 print("")
-SERVICE_FILE_BASENAME = "%s.service" % SERVICE_PARAMS["service-leaf"]
+SERVICE_FILE_BASENAME = "%s.service" % SERVICE_CONFIG_BASE
+SOCKET_FILE_BASENAME = "%s.socket" % SERVICE_CONFIG_BASE
 print("")
 print("SYSTEMD TEMPLATE FILES:")
 print("    service: %s" % SERVICE_FILE_BASENAME)
+print("     socket: %s" % SOCKET_FILE_BASENAME)
 print("")
+print("")
+
+SRC_SOCKET_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "systemd", SOCKET_FILE_BASENAME)
+DEST_SOCKET_FILE = os.path.join(DIR_SYSTEMD_SYSTEM, SOCKET_FILE_BASENAME)
+
+print("")
+with open(SRC_SOCKET_TEMPLATE) as srcf:
+    template_content = srcf.read()
+    filled_content = template_content % SERVICE_PARAMS
+    print("WRITING SYSTEMD SOCKET CONFIG: %s" % DEST_SOCKET_FILE)
+    print(filled_content)
+    print("")
+    with open(DEST_SOCKET_FILE, 'w') as destf:
+        destf.write(filled_content)
 print("")
 
 SRC_SERVICE_TEMPLATE = os.path.join(DEPLOYMENT_TEMPLATE_DIR, "systemd", SERVICE_FILE_BASENAME)
@@ -140,7 +158,7 @@ print("")
 with open(SRC_SERVICE_TEMPLATE) as srcf:
     template_content = srcf.read()
     filled_content = template_content % SERVICE_PARAMS
-    print("WRITING SYSTEMD CONFIG: %s" % DEST_SERVICE_FILE)
+    print("WRITING SYSTEMD SERVICE CONFIG: %s" % DEST_SERVICE_FILE)
     print(filled_content)
     print("")
     with open(DEST_SERVICE_FILE, 'w') as destf:
@@ -175,10 +193,10 @@ print("")
 
 print("SERVICE RESTART:")
 try:
-    CMD_NGINX_RESTART = "service %s restart; service %s status" % (SERVICE_PARAMS["service-leaf"], SERVICE_PARAMS["service-leaf"])
+    CMD_NGINX_RESTART = "service %s restart; service %s status" % (SERVICE_CONFIG_BASE, SERVICE_CONFIG_BASE)
     subprocess.check_call(CMD_NGINX_RESTART, shell=True)
 except subprocess.CalledProcessError:
-    print("Failed to restart %s." % SERVICE_PARAMS["service-leaf"])
+    print("Failed to restart %s." % SERVICE_CONFIG_BASE)
 print("")
 print("")
 

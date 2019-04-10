@@ -1,0 +1,8 @@
+[Unit]
+Description=%(service-leaf)s socket
+
+[Socket]
+ListenStream=/run/gunicorn/%(service-leaf)s.sock
+
+[Install]
+WantedBy=%(service-leaf)s.service

@@ -5,13 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File (Integrated Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "pythonPath": "${config:python.pythonPath}",
+            "envFile": "${workspaceFolder}/_local/development.env"
+        },
+        {
             "name": "Python: Hello - main entry",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/service/app_hello.py",
             "console": "integratedTerminal",
             "pythonPath": "${config:python.pythonPath}",
-            "envFile": "${workspaceFolder}/development.env"
+            "envFile": "${workspaceFolder}/_local/development.env"
         }
     ]
 }

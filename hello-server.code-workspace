@@ -1,12 +1,12 @@
 {
     "folders": [
         {
-            "path": "../hello-server"
+            "path": "./"
         }
     ],
     "settings": {
-        "python.pythonPath": "local/venv/bin/python",
-        "python.envFile": "./development.env",
+        "python.pythonPath": "./_local/venv/bin/python",
+        "python.envFile": "./_local/development.env",
         "python.linting.enabled": false
     }
 }

@@ -34,7 +34,7 @@ if [ ! -d $SSH_DIR ]; then
 fi
 
 REQUIREMENTS_FILE="$REPOSITORY_DIR/requirements.txt"
-VIRTUAL_ENV="$REPOSITORY_DIR/local/venv"
+VIRTUAL_ENV="$REPOSITORY_DIR/_local/venv"
 DEPLOYMENT_SSH_KEYFILE="$SSH_DIR/id_deploy_rsa"
 
 if [ ! -f $DEPLOYMENT_SSH_KEYFILE ]; then
@@ -43,8 +43,9 @@ if [ ! -f $DEPLOYMENT_SSH_KEYFILE ]; then
     ssh-copy-id -i $DEPLOYMENT_SSH_KEYFILE root@$TARGET_HOST
 fi
 
-HAS_SERVICE_USER=$(ssh root@$TARGET_HOST "$( id -u blah &> /dev/null ); echo \"$?\"")
-if [ $HAS_SERVICE_USER = "1" ]; then
+# See if we can login to th remote machine.  If not try to add the key
+HAS_SERVICE_USER=$(ssh root@$TARGET_HOST '$( id -u '$SVCUSER' &> /dev/null ); echo "$?" ')
+if [ "$HAS_SERVICE_USER" = "1" ]; then
     ssh root@$TARGET_HOST "useradd --password \"$PASSKEY\" $SVCUSER"
 fi
 
@@ -70,7 +71,7 @@ scp -r $REPOSITORY_DIR/patches root@$TARGET_HOST:$DEPLOYMENT_DIR
 scp -r $REPOSITORY_DIR/service root@$TARGET_HOST:$DEPLOYMENT_DIR
 scp -r $REPOSITORY_DIR/requirements.txt root@$TARGET_HOST:$DEPLOYMENT_DIR
 echo
-echo "Repostory deployment complete..."
+echo "Source deployment complete..."
 echo
 
 echo

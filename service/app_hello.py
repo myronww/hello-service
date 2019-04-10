@@ -24,7 +24,6 @@ app.extensions.setdefault("restplus", {
 })
 
 
-
 # Register the URL route blueprints
 register_blueprints(app, "hello")
 
